@@ -5,6 +5,8 @@
 #include <QSqlQueryModel>
 #include <QSqlRecord>
 #include <QSqlQuery>
+#include <QStringRef>
+#include <QStringList>
 
 /****************************************************************************************************************************/
 Server::Server(QObject* parent) : QObject(parent) , m_db() {
@@ -38,6 +40,21 @@ void Server::newRegistration()
 {
     QTcpSocket* socket = server->nextPendingConnection();
     qDebug() << "Client connected: " << socket->peerAddress().toString();
+}
+/****************************************************************************************************************************/
+bool Server::sendToUser(const QString &user, const QString &msg) const
+{
+    bool ret = false;
+    for(auto& e: clients.keys())
+    {
+        if(clients[e] == user)
+        {
+            e->write(msg.toUtf8());
+            ret = true;
+        }
+    }
+    qDebug() << "user:" << user << "msg: " << msg << "/n";
+    return ret;
 }
 /****************************************************************************************************************************/
 //slot when new client con to server
@@ -74,22 +91,6 @@ void Server::onReadyRead() {
     while (socket->canReadLine()) {
         QString line = QString::fromUtf8(socket->readLine()).trimmed();
 
-//        if (loginRex.indexIn(line) != -1) {//indexin
-//            QString user = loginRex.cap(1);//username
-//            clients[socket] = user;//pazene v map pri logvane
-//            sendToAll(QString("/system:" + user + " has joined the chat.\n"));//def-izprashta do vsichki
-//            sendUserList();//def-vrushta spisuk s potrebiteli
-//            qDebug() << user << "logged in.";
-
-
-//            QSqlQuery query("SELECT * FROM User");
-//                auto qUser = query.record().indexOf("username");
-//                while (query.next()) {
-//                    auto username = query.value(qUser).toString();
-//                   qDebug()<< username;
-//                }
-
-
     if (loginRex.indexIn(line) != -1) {
         QString user = loginRex.cap(1);
 
@@ -103,8 +104,9 @@ void Server::onReadyRead() {
         else
         {
             QString falseLogin(QString("/falseLogin:" + user + "\n"));
-            sendToAll(falseLogin.toUtf8()); //TODO : send it to the specific usere
-            qDebug() << user << "еlse.";
+            sendToUser(user, falseLogin);
+            socket->write(falseLogin.toUtf8());
+//            qDebug() << user << "fail";
         }
 
     }
@@ -112,9 +114,18 @@ void Server::onReadyRead() {
     {
         QString user = clients.value(socket);
         QString msg = messageRex.cap(1);//search cap() example
-        sendToAll(QString(user + ":" + msg + "\n"));//return text for index
-        qDebug() << "Message:" << msg;
-
+        if(msg[0] == '/')
+        {
+            QStringList strArr = msg.split(" ");
+            strArr[0] = strArr[0].remove(0,1);
+//            QStringRef subString(strArr.first(),1,strArr.size());
+            sendToUser( strArr[0] ,QString(user + ":" + msg + "\n") );
+        }
+        else
+        {
+            sendToAll(QString(user + ":" + msg + "\n"));//return text for index
+            qDebug() << "Message:" << msg;
+        }
     }
     else if (registerRex.indexIn(line) != -1){
         QString userReg = registerRex.cap(1);
