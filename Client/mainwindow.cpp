@@ -61,9 +61,12 @@ void MainWindow::on_pbLogin_clicked() {
 /****************************************************************************************/
 void MainWindow::on_pbSend_clicked() {
     QString message = ui->leMessage->text().trimmed();
+    if (message[0]=='/'){
+        ui->teChat->append("<p color=\"green\">" + message + "</p>\n");
+    }
     if (!message.isEmpty()) {
         socket->write(QString("/say:" + message + "\n").toUtf8());
-        ui->teChat->append(message);
+        //ui->teChat->append(message);
         ui->leMessage->clear();
         ui->leMessage->setFocus();
 
@@ -87,6 +90,7 @@ void MainWindow::onReadyRead() {
     QRegExp systemRex("^/system:(.*)$");
     QRegExp messageRex("^(.*):(.*)$");
     QRegExp falseLogin("^/falseLogin:(.*)$");
+    QRegExp privateMessage("^/private:(.*)$");
 
     while (socket->canReadLine()) {
         QString line = QString::fromUtf8(socket->readLine()).trimmed();
@@ -120,6 +124,10 @@ void MainWindow::onReadyRead() {
             QString message = messageRex.cap(2);
             ui->teChat->append("<p><b>" + user + "</b>: " + message + "</p>\n");
         }
+        else if (privateMessage.indexIn(line) != -1){
+            QString message = messageRex.cap(1);
+            ui->teChat->append(message);
+        }
 
     }
 }
@@ -142,3 +150,4 @@ void MainWindow::onDisconnected() {
 
 
 /****************************************************************************************/
+
