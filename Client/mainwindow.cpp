@@ -63,8 +63,10 @@ void MainWindow::on_pbSend_clicked() {
     QString message = ui->leMessage->text().trimmed();
     if (!message.isEmpty()) {
         socket->write(QString("/say:" + message + "\n").toUtf8());
+        ui->teChat->append(message);
         ui->leMessage->clear();
         ui->leMessage->setFocus();
+
     }
 }
 /****************************************************************************************/
@@ -82,7 +84,7 @@ void MainWindow::registration()
 
 void MainWindow::onReadyRead() {
     QRegExp usersRex("^/users:(.*)$");
-    QRegExp systemRex("^/system:(.*)$"); 
+    QRegExp systemRex("^/system:(.*)$");
     QRegExp messageRex("^(.*):(.*)$");
     QRegExp falseLogin("^/falseLogin:(.*)$");
 
@@ -90,11 +92,11 @@ void MainWindow::onReadyRead() {
         QString line = QString::fromUtf8(socket->readLine()).trimmed();
 
         if (usersRex.indexIn(line) != -1) {
-            QStringList users = usersRex.cap(1).split(",");
-            ui->lwUsers->clear();
-            foreach (QString user, users) {
-                new QListWidgetItem(QIcon(":/user.png"), user, ui->lwUsers);
-            }
+                       QStringList users = usersRex.cap(1).split(",");
+                        ui->lwUsers->clear();
+                        foreach (QString user, users){
+                           new QListWidgetItem(QIcon(":/user.png"), user, ui->lwUsers);
+                        }
         }
 
         else if (systemRex.indexIn(line) != -1) {
@@ -103,12 +105,14 @@ void MainWindow::onReadyRead() {
         }
         else if (falseLogin.indexIn(line) != -1)
         {
-                if(falseLogin.cap(1) == ui->leName->text())
-                {
-                QMessageBox::warning(this, "Warning",
-                                     "There's no have this user!", QMessageBox::Ok);
-                ui->stackedWidget->setCurrentWidget(ui->loginPage);
-                exit(1);
+            if(falseLogin.cap(1) == ui->leName->text())
+            {
+            QMessageBox::warning(this, "Warning",
+                                 "Username is wrong! You should be registred first", QMessageBox::Ok);
+
+            ui->stackedWidget->setCurrentWidget(ui->loginPage);
+            //exit(1);
+
             }
         }
         else if (messageRex.indexIn(line) != -1) {
@@ -119,8 +123,6 @@ void MainWindow::onReadyRead() {
 
     }
 }
-
-
 /****************************************************************************************/
 void MainWindow::onConnected() {
     ui->teChat->clear();
@@ -137,3 +139,6 @@ void MainWindow::onDisconnected() {
                          "You have been disconnected from the server", QMessageBox::Ok);
     ui->stackedWidget->setCurrentWidget(ui->loginPage);
 }
+
+
+/****************************************************************************************/
