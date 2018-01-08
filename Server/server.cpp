@@ -49,7 +49,9 @@ bool Server::sendToUser(const QString &user, const QString &msg) const
     {
         if(clients[e] == user)
         {
+//            e->write("/private");
             e->write(msg.toUtf8());
+
             ret = true;
         }
     }
@@ -119,7 +121,9 @@ void Server::onReadyRead() {
             QStringList strArr = msg.split(" ");
             strArr[0] = strArr[0].remove(0,1);
 //            QStringRef subString(strArr.first(),1,strArr.size());
-            sendToUser( strArr[0] ,QString(user + ":" + msg + "\n") );
+            sendToUser( strArr[0] ,QString("/private"+user + ":" + msg + "\n") );
+
+
         }
         else
         {
