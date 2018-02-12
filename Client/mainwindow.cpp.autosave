@@ -108,7 +108,8 @@ void MainWindow::onReadyRead() {
                         ui->lwUsers->clear();
                         foreach (QString user, users){
 
-                            listButtons.push_back(createNewButton(user));
+                            listButtons.push_back(createNewBu
+                                                  tton(user));
 
                             listWidgets.push_back(new PrivateMessage(socket,user));
 
@@ -147,7 +148,7 @@ void MainWindow::onReadyRead() {
 
             pMessage(user);
             ui->teChat->append("<p><b>" + user + "</b>: " + message + "</p>\n");
-//            messageApend(message);
+
         }
         else if (messageRex.indexIn(line) != -1) {
             QString user = messageRex.cap(1);

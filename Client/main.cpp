@@ -1,4 +1,5 @@
 #include "mainwindow.h"
+#include "privatemessage.h"
 #include <QApplication>
 
 int main(int argc, char *argv[])

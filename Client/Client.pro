@@ -14,10 +14,12 @@ TEMPLATE = app
 
 
 SOURCES += main.cpp \
-    mainwindow.cpp
+    mainwindow.cpp \
+    privatemessage.cpp
 
 HEADERS  += \
-    mainwindow.h
+    mainwindow.h \
+    privatemessage.h
 
 FORMS    += \
     mainwindow.ui
