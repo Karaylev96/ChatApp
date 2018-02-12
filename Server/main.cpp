@@ -1,18 +1,12 @@
-#include <QCoreApplication>
-#include <QtCore>
-#include <server.h>
-#include <QDebug>
-#include "database.h"
-
-
-static const QString path = "C:/Users/Goro/Desktop/server-client/Chat-master/Server/db.db";
+#include "mainwindow.h"
+#include "privatemessage.h"
+#include <QApplication>
 
 int main(int argc, char *argv[])
 {
-
-    QCoreApplication a(argc, argv);
-    Server server(NULL);
-
+    QApplication a(argc, argv);
+    MainWindow w;
+    w.show();
 
     return a.exec();
 }
